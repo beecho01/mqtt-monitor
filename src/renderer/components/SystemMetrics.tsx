@@ -1,13 +1,13 @@
+import { makeStyles, Subtitle1 } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
 import { MetricCard } from "./MetricCard";
-import { makeStyles } from "@fluentui/react-components";
 
 const useStyles = makeStyles({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
     gap: "16px",
-    padding: "10px",
+    padding: "20px 0px",
   },
 });
 
@@ -15,7 +15,7 @@ export const SystemMetrics = () => {
   const [cpuUsage, setCpuUsage] = useState<number>(0);
   const [memoryUsage, setMemoryUsage] = useState<number>(0);
   const styles = useStyles();
-  
+
   useEffect(() => {
     // Subscribe to metrics events from the main process
     const handleMetrics = (data: { topic: string; value: string }) => {
@@ -38,11 +38,11 @@ export const SystemMetrics = () => {
 
   return (
     <div>
-        <h2>System Performance</h2>
-        <div className={ styles.grid }>
+      <Subtitle1>System Performance</Subtitle1>
+      <div className={styles.grid}>
         <MetricCard label="CPU Usage" value={cpuUsage} suffix="%" />
         <MetricCard label="Memory Usage" value={memoryUsage} suffix="%" />
-        </div>
+      </div>
     </div>
   );
 };

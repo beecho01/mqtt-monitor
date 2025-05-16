@@ -1,10 +1,6 @@
 import { makeStyles, mergeClasses, Tab, TabList, type Theme } from "@fluentui/react-components";
-import {
-  SettingsRegular,
-  HomeRegular,
-  BugRegular,
-} from "@fluentui/react-icons";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { BugRegular, HomeRegular, SettingsRegular } from "@fluentui/react-icons";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const useStyles = makeStyles({
   card: {
@@ -33,7 +29,7 @@ const useStyles = makeStyles({
 export const Sidebar = ({ theme }: { theme: Theme }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const styles = useStyles();
 
   const handleTabSelect = (selectedTab: string) => {
@@ -57,12 +53,12 @@ export const Sidebar = ({ theme }: { theme: Theme }) => {
       }}
     >
       <div style={{ flexGrow: 1 }}>
-        <TabList 
-          vertical 
-          selectedValue={location.pathname} 
-          onTabSelect={(_, data) => handleTabSelect(data.value as string)} 
+        <TabList
+          vertical
+          selectedValue={location.pathname}
+          onTabSelect={(_, data) => handleTabSelect(data.value as string)}
           appearance="subtle"
-          className={ mergeClasses(styles.flex, styles.spread) }
+          className={mergeClasses(styles.flex, styles.spread)}
         >
           <div>
             <Tab icon={<HomeRegular />} value="/">

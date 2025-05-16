@@ -1,6 +1,6 @@
 import { BrowserWindow, app, ipcMain, nativeTheme, type IpcMainEvent } from "electron";
-import { join } from "path";
 import os from "os";
+import { join } from "path";
 import { MqttBridge } from "./mqtt"; // Add this import
 
 const createBrowserWindow = (): BrowserWindow => {
@@ -20,12 +20,12 @@ const createBrowserWindow = (): BrowserWindow => {
   };
 
   // Apply platform-specific options
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     try {
       // Check if running on Windows Server
-      const isWindowsServer = os.release().toLowerCase().includes('server') || 
-                             (os.type() === 'Windows_NT' && os.release() >= '10.0' && 
-                              !app.isAccessibilitySupportEnabled()); // This is a hacky check
+      const isWindowsServer =
+        os.release().toLowerCase().includes("server") ||
+        (os.type() === "Windows_NT" && os.release() >= "10.0" && !app.isAccessibilitySupportEnabled()); // This is a hacky check
 
       if (!isWindowsServer) {
         // Regular Windows, try to use Mica
@@ -33,20 +33,20 @@ const createBrowserWindow = (): BrowserWindow => {
         windowOptions.vibrancy = "header";
       } else {
         // Windows Server fallback - use solid color matching the theme
-        windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? '#202020' : '#f5f5f5';
+        windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
       }
     } catch (error) {
-      console.log('Error detecting platform capabilities, using fallback:', error);
+      console.log("Error detecting platform capabilities, using fallback:", error);
       // Fallback to solid background if error occurs
-      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? '#202020' : '#f5f5f5';
+      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
     }
   } else {
     // Non-Windows platforms
-    if (process.platform === 'darwin') {
+    if (process.platform === "darwin") {
       windowOptions.vibrancy = "header"; // macOS vibrancy
     } else {
       // Linux and other platforms
-      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? '#202020' : '#f5f5f5';
+      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
     }
   }
 
@@ -79,18 +79,15 @@ const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) =
 async function getCpuUsage() {
   const cpus = os.cpus();
   const totalIdle = cpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
-  const totalTick = cpus.reduce(
-    (acc, cpu) => acc + Object.values(cpu.times).reduce((sum, time) => sum + time, 0),
-    0
-  );
+  const totalTick = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((sum, time) => sum + time, 0), 0);
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const newCpus = os.cpus();
   const newTotalIdle = newCpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
   const newTotalTick = newCpus.reduce(
     (acc, cpu) => acc + Object.values(cpu.times).reduce((sum, time) => sum + time, 0),
-    0
+    0,
   );
 
   const idleDiff = newTotalIdle - totalIdle;
@@ -113,7 +110,7 @@ function getMemoryUsage() {
   loadFileOrUrl(mainWindow);
   registerIpcEventListeners();
   registerNativeThemeEventListeners(BrowserWindow.getAllWindows());
-  
+
   // Initialize the MQTT bridge
   new MqttBridge(mainWindow);
 
@@ -121,7 +118,7 @@ function getMemoryUsage() {
   setInterval(() => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       // Get CPU usage
-      getCpuUsage().then(cpuUsage => {
+      getCpuUsage().then((cpuUsage) => {
         mainWindow.webContents.send("metrics", {
           topic: "cpu",
           value: cpuUsage.toString(),

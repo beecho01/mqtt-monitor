@@ -1,19 +1,19 @@
 import {
   FluentProvider,
-  Link,
-  MessageBar,
-  MessageBarBody,
-  MessageBarTitle,
+  //Link,
+  //MessageBar,
+  //MessageBarBody,
+  //MessageBarTitle,
   Spinner,
   webDarkTheme,
   webLightTheme,
   type Theme,
 } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Sidebar } from "./components/Sidebar";
-import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Configuration";
+import Dashboard from "./pages/Dashboard";
 import LogView from "./pages/LogView";
 
 const shouldUseDarkColors = (): boolean =>
@@ -44,7 +44,7 @@ export const App = () => {
             alignItems: "center",
           }}
         >
-          <Spinner size="huge"/>
+          <Spinner size="huge" />
         </div>
       ) : (
         <div
@@ -68,11 +68,11 @@ export const App = () => {
               overflow: "hidden", // Prevents this container from scrolling
             }}
           >
-            <div 
-              style={{ 
-                flexGrow: 1, 
+            <div
+              style={{
+                flexGrow: 1,
                 overflowY: "auto", // Enables vertical scrolling for content area
-                scrollBehavior: "smooth" 
+                scrollBehavior: "smooth",
               }}
             >
               <Routes>
@@ -81,12 +81,12 @@ export const App = () => {
                 <Route path="/configuration" element={<Settings />} />
               </Routes>
             </div>
-            <MessageBar>
+            {/* <MessageBar>
               <MessageBarBody>
                 <MessageBarTitle>Update available</MessageBarTitle>
                 Click <Link>here</Link> to install.
               </MessageBarBody>
-            </MessageBar>
+            </MessageBar> */}
           </div>
         </div>
       )}
