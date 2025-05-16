@@ -1,0 +1,61 @@
+{
+    "name": "electron-fluent-ui",
+    "description": "Template for developing Electron applications using TypeScript and Fluent UI React components",
+    "version": "4.4.3",
+    "license": "MIT",
+    "author": {
+        "email": "oliver.schwendener@proton.me",
+        "name": "Oliver Schwendener",
+        "url": "https://github.com/oliverschwendener"
+    },
+    "main": "dist-main/main.js",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite",
+        "lint": "eslint .",
+        "package:publish": "electron-builder --config electron-builder.config.js --publish always",
+        "package": "electron-builder --config electron-builder.config.js",
+        "prettier": "prettier --write -- src/**/*.{mjs,ts,tsx}",
+        "test:coverage": "vitest run --coverage",
+        "test:watch": "vitest",
+        "test": "vitest run",
+        "typecheck": "yarn run typecheck:main && yarn run typecheck:preload && yarn run typecheck:renderer",
+        "typecheck:main": "tsc -p src/main/tsconfig.json --noEmit",
+        "typecheck:preload": "tsc -p src/preload/tsconfig.json --noEmit",
+        "typecheck:renderer": "tsc -p src/renderer/tsconfig.json --noEmit"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.19.0",
+        "@types/eslint__js": "^8.42.3",
+        "@types/mqtt": "^2.5.0",
+        "@types/node": "^22.13.1",
+        "@types/react": "^18.3.4",
+        "@types/react-dom": "^18.3.0",
+        "@types/react-router-dom": "^5.3.3",
+        "@vitejs/plugin-react": "^4.3.4",
+        "@vitest/coverage-v8": "^3.1.1",
+        "electron": "^34.0.2",
+        "electron-builder": "^25.1.8",
+        "electron-builder-squirrel-windows": "25.1.8",
+        "eslint": "^9.19.0",
+        "globals": "^15.14.0",
+        "prettier": "^3.4.2",
+        "prettier-plugin-organize-imports": "^4.1.0",
+        "typescript": "^5.7.3",
+        "typescript-eslint": "^8.23.0",
+        "vite": "^6.3.4",
+        "vite-plugin-electron": "^0.29.0",
+        "vite-plugin-electron-renderer": "^0.14.6",
+        "vitest": "^3.1.1"
+    },
+    "dependencies": {
+        "@fluentui/react-components": "^9.64.0",
+        "@fluentui/react-icons": "^2.0.300",
+        "mqtt": "^5.13.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-router": "^7.5.2",
+        "react-router-dom": "^7.5.2",
+        "scheduler": "0.23.0"
+    }
+}

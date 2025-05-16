@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "composite": true,
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "paths": {
+            "@common/*": ["./src/common/*"],
+            "@shared/*": ["./src/shared/*"],
+            "@components/*": ["./src/renderer/components/*"]
+        },
+        "resolveJsonModule": true,
+        "rootDir": "./src",
+        "skipLibCheck": true,
+        "strict": true
+    }
+}
