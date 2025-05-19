@@ -1,10 +1,12 @@
 import { makeStyles, Text, Title1, tokens } from "@fluentui/react-components";
 import { MetricsPayload } from "@shared/types";
 import { useEffect, useState } from "react";
+import { ScrollableContainer } from "../components/ScrollableContainer";
 import { useWindowHeight } from "../hooks/useWindowHeight";
+import { useWindowWidth } from "../hooks/useWindowWidth";
 
 const useStyles = makeStyles({
-  container : {
+  container: {
     display: "flex",
     flexDirection: "column",
     padding: "20px",
@@ -12,16 +14,15 @@ const useStyles = makeStyles({
   },
   logsContainer: {
     display: "flex",
+    flexGrow: 1,
+    gap: "50px",
     flexDirection: "row",
-    gap: "20px",
-    width: "100%",
     height: "100%",
   },
 
   logContainer: {
     display: "flex",
     flexDirection: "column",
-    width: "50%",
   },
 
   logLabel: {
@@ -56,11 +57,12 @@ export default function LogView() {
   const [mqttLogs, setMqttLogs] = useState<LogEntry[]>([]);
   const [statusLogs, setStatusLogs] = useState<[number, string][]>([]);
   const logHeight = useWindowHeight({ percentage: 100, offset: 220 });
+  const logWidth = useWindowWidth({ percentage: 50, offset: 180 });
 
   const statusLabelId = "status-log-label";
   const mqttLabelId = "mqtt-log-label";
 
-  // Set up IPC listeners for MQTT messages
+  // Set up IPC listeners for MQTT messages and fetch config
   useEffect(() => {
     console.log("Setting up IPC listeners for MQTT messages");
 
@@ -91,58 +93,62 @@ export default function LogView() {
     // Add event listeners using the correct API methods
     window.api.onMetrics(metricsHandler);
     window.api.onStatus(statusHandler);
+
+    // Clean up listeners on unmount
+    return () => {
+      window.api.offMetrics(metricsHandler);
+      window.api.offStatus(statusHandler);
+    };
   }, []);
 
   return (
-    <div className={ styles.container }>
+    <div className={styles.container}>
       <Title1 style={{ paddingBottom: "40px" }}>Log View</Title1>
 
       <div className={styles.logsContainer}>
         {/* Status Log */}
-        <div className={styles.logContainer}>
-          <div className={styles.logLabel} id={statusLabelId}>
-            Status log
-          </div>
-          <div 
-            role="log" 
-            aria-labelledby={statusLabelId} 
-            className={styles.log} 
-            style={{ height: `${logHeight}px` }}
-          >
+        <div className={styles.logContainer} style={{ width: logWidth }}>
+          <ScrollableContainer height={logHeight} label="Status log" labelId={statusLabelId}>
             {[...statusLogs].reverse().map(([time, eventLog], i) => {
               const date = new Date(time);
               return (
-                <div key={i}>
+                <div key={`status-${time}-${i}`}>
                   {date.toLocaleTimeString([], { hour12: false })}{" "}
-                  <Text style={{ color: tokens.colorBrandBackground }} weight="bold">
-                    {eventLog}
+                  {eventLog.includes("error") ? (
+                    <Text style={{ color: tokens.colorPaletteRedBackground3 }} weight="bold">
+                      {eventLog}
+                    </Text>
+                  ) : eventLog.includes("warning") ? (
+                    <Text style={{ color: "var(--colorWarningForeground)" }} weight="bold">
+                      {eventLog}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: "var(--colorBrandBackground)" }} weight="bold">
+                      {eventLog}
+                    </Text>
+                  )}
+                </div>
+              );
+            })}
+          </ScrollableContainer>
+        </div>
+
+        {/* MQTT Log */}
+        <div className={styles.logContainer} style={{ width: logWidth }}>
+          <ScrollableContainer height={logHeight} label="MQTT Messages" labelId={mqttLabelId}>
+            {[...mqttLogs].reverse().map((log, i) => {
+              const date = new Date(log.timestamp);
+              return (
+                <div key={`mqtt-${log.timestamp}-${i}`}>
+                  {date.toLocaleTimeString([], { hour12: false })}
+                  <Text style={{ color: "var(--colorBrandBackground)" }} weight="bold">
+                    {" "}
+                    {log.topic}: {log.message}
                   </Text>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* MQTT Log */}
-        <div className={styles.logContainer}>
-          <div className={styles.logLabel} id={mqttLabelId}>
-            MQTT Messages
-          </div>
-          <div 
-            role="log" 
-            aria-labelledby={mqttLabelId} 
-            className={styles.log} 
-            style={{ height: `${logHeight}px` }}
-          >
-            {[...mqttLogs].reverse().map((log, i) => {
-              const date = new Date(log.timestamp);
-              return (
-                <div key={i}>
-                  {date.toLocaleTimeString([], { hour12: false })} <Text weight="bold">{log.topic}:</Text> {log.message}
-                </div>
-              );
-            })}
-          </div>
+          </ScrollableContainer>
         </div>
       </div>
     </div>

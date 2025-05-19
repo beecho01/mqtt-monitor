@@ -12,9 +12,12 @@ interface Props {
 
 const useStyles = makeStyles({
   card: {
+    width: "100%", 
+    minWidth: "240px",
     maxWidth: "100%",
     height: "fit-content",
     padding: "12px 16px",
+    borderRadius: "8px",
   },
   flex: {
     display: "flex",
@@ -44,30 +47,30 @@ const useStyles = makeStyles({
     color: "gray",
     marginTop: "8px",
     display: "block",
-  }
+  },
 });
 
-export const MetricCard = ({ 
-  label, 
-  value, 
-  suffix = "%", 
-  valueAsNode = false, 
+export const MetricCard = ({
+  label,
+  value,
+  suffix = "%",
+  valueAsNode = false,
   description = "",
-  showProgress = true 
+  showProgress = true,
 }: Props): ReactElement => {
   const styles = useStyles();
 
   // Function to determine badge appearance based on status
   const getBadgeAppearance = (status: string) => {
     status = status.toLowerCase();
-    if (status === 'running') return 'filled';
-    if (status === 'stopped' || status === 'not_running') return 'tint';
-    if (status === 'pending' || status === 'starting') return 'ghost';
-    return 'outline';
+    if (status === "running") return "filled";
+    if (status === "stopped" || status === "not running") return "tint";
+    if (status === "pending" || status === "starting") return "ghost";
+    return "outline";
   };
 
   return (
-    <Card size="small" appearance="outline" className={styles.card}>
+    <Card size="small" appearance="filled" className={styles.card}>
       <CardHeader
         header={
           <div className={mergeClasses(styles.flex, styles.spread)}>
@@ -81,26 +84,20 @@ export const MetricCard = ({
         <div className={styles.valueContainer}>
           <div className={styles.statusValue}>
             {value}
-            {suffix && (
-              <Badge 
-                appearance={getBadgeAppearance(suffix)}
-              >
-                {suffix}
-              </Badge>
-            )}
+            {suffix && <Badge appearance={getBadgeAppearance(suffix)}>{suffix}</Badge>}
           </div>
         </div>
       ) : (
         // Display metric with progress bar
-        <footer className={mergeClasses(styles.flex, styles.spread)}>
+        <div className={mergeClasses(styles.flex, styles.spread)}>
           {showProgress && <ProgressBar value={Number(value) / 100} className={styles.progressBar} />}
           <span>
             <Text size={200} weight="regular">
-              {typeof value === 'number' ? value.toFixed(1) : value}
+              {typeof value === "number" ? value.toFixed(1) : value}
               {suffix}
             </Text>
           </span>
-        </footer>
+        </div>
       )}
 
       {description && <Text className={styles.description}>{description}</Text>}

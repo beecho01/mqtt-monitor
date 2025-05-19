@@ -1,14 +1,23 @@
 import type { ContextBridge } from "@common/ContextBridge";
-import type { ConfigPayload, MetricsPayload, StatusPayload } from "@shared/types";
+import { ConfigPayload, MetricsPayload, StatusPayload } from "@shared/types";
 
 export declare global {
   interface Window {
     api: {
-      onMetrics: (cb: (data: MetricsPayload) => void) => void;
-      updateConfig: (cfg: ConfigPayload) => Promise<unknown>;
-      getConfig: (cfg?: ConfigPayload) => Promise<unknown>; // Made parameter optional
-      onStatus: (cb: (data: StatusPayload) => void) => void;
-      onConfigUpdated: (cb: (cfg?: ConfigPayload) => void) => void; // Added this method
+      getConfig: () => Promise<ConfigPayload>;
+      updateConfig: (config: ConfigPayload) => Promise<void>;
+      onStatus: (callback: (data: StatusPayload) => void) => void;
+      offStatus: (callback: (data: StatusPayload) => void) => void;
+      onConfigUpdated: (callback: () => void) => void;
+      offConfigUpdated: (callback: () => void) => void;
+      onMetrics: (callback: (data: MetricsPayload) => void) => void;
+      offMetrics: (callback: (data: MetricsPayload) => void) => void;
+      checkProcess: (processName: string) => Promise<boolean>;
+      checkService: (serviceName: string) => Promise<{ state: string; displayName?: string; description?: string }>;
+      getMqttStatus: () => Promise<{ connected: boolean; lastError?: string }>;
+      requestSystemMetrics: () => Promise<void>;
+      requestProcessStatus: (processNames: string[]) => Promise<boolean>;
+      requestServiceStatus: (serviceNames: string[]) => Promise<boolean>;
     };
     ContextBridge: ContextBridge;
   }

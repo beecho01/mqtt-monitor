@@ -1,12 +1,12 @@
 {
-    "name": "electron-fluent-ui",
-    "description": "Template for developing Electron applications using TypeScript and Fluent UI React components",
-    "version": "4.4.3",
+    "name": "mqtt-monitor",
+    "description": "MQTT Monitor is a desktop application built with Electron, TypeScript, and Fluent UI React. It provides a user-friendly interface for gathering system information and publishing system data to MQTT topics.",
+    "version": "1.0.0",
+    "keywords": ["Electron", "TypeScript", "Fluent UI React", "React", "Vite", "MQTT", "System Information"],
     "license": "MIT",
     "author": {
-        "email": "oliver.schwendener@proton.me",
-        "name": "Oliver Schwendener",
-        "url": "https://github.com/oliverschwendener"
+        "name": "James Beeching",
+        "url": "https://github.com/beecho01"
     },
     "main": "dist-main/main.js",
     "scripts": {
@@ -56,6 +56,7 @@
         "react-dom": "^18.3.1",
         "react-router": "^7.5.2",
         "react-router-dom": "^7.5.2",
-        "scheduler": "0.23.0"
+        "scheduler": "0.23.0",
+        "systeminformation": "^5.25.11"
     }
 }

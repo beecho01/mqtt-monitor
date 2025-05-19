@@ -1,11 +1,20 @@
 import { BrowserWindow, app, ipcMain, nativeTheme, type IpcMainEvent } from "electron";
-import os from "os";
 import { join } from "path";
-import { MqttBridge } from "./mqtt"; // Add this import
+import { ConfigManager } from "./configManager";
+import { MqttBridge } from "./mqtt";
+import { ProcessMonitor } from "./processMonitor";
+import { ServiceMonitor } from "./serviceMonitor";
+import { SystemMonitor } from "./systemMonitor";
+
+let mqttBridge: MqttBridge;
+let systemMonitor: SystemMonitor;
 
 const createBrowserWindow = (): BrowserWindow => {
   const preloadScriptFilePath = join(__dirname, "..", "dist-preload", "preload.js");
 
+  // Determine icon based on theme
+  const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-light.png" : "app-icon-dark.png";
+  
   // Create base window options
   const windowOptions: Electron.BrowserWindowConstructorOptions = {
     width: 1152,
@@ -16,39 +25,9 @@ const createBrowserWindow = (): BrowserWindow => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: join(__dirname, "..", "build", "app-icon-dark.png"),
+    icon: join(__dirname, "..", "build", iconName),
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5",
   };
-
-  // Apply platform-specific options
-  if (process.platform === "win32") {
-    try {
-      // Check if running on Windows Server
-      const isWindowsServer =
-        os.release().toLowerCase().includes("server") ||
-        (os.type() === "Windows_NT" && os.release() >= "10.0" && !app.isAccessibilitySupportEnabled()); // This is a hacky check
-
-      if (!isWindowsServer) {
-        // Regular Windows, try to use Mica
-        windowOptions.backgroundMaterial = "mica";
-        windowOptions.vibrancy = "header";
-      } else {
-        // Windows Server fallback - use solid color matching the theme
-        windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
-      }
-    } catch (error) {
-      console.log("Error detecting platform capabilities, using fallback:", error);
-      // Fallback to solid background if error occurs
-      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
-    }
-  } else {
-    // Non-Windows platforms
-    if (process.platform === "darwin") {
-      windowOptions.vibrancy = "header"; // macOS vibrancy
-    } else {
-      // Linux and other platforms
-      windowOptions.backgroundColor = nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5";
-    }
-  }
 
   return new BrowserWindow(windowOptions);
 };
@@ -61,76 +40,100 @@ const loadFileOrUrl = (browserWindow: BrowserWindow) => {
   }
 };
 
-const registerIpcEventListeners = () => {
+const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
   ipcMain.on("themeShouldUseDarkColors", (event: IpcMainEvent) => {
     event.returnValue = nativeTheme.shouldUseDarkColors;
+  });
+
+  ipcMain.handle("check-process", async (_e, processName) => {
+    const isRunning = await ProcessMonitor.checkProcess(processName);
+
+    // Send status update
+    mainWindow.webContents.send("status", {
+      kind: "process_status",
+      name: processName,
+      state: isRunning ? "running" : "not running",
+    });
+
+    return isRunning;
+  });
+
+  ipcMain.handle("check-service", async (_e, serviceName) => {
+    const serviceStatus = await ServiceMonitor.checkService(serviceName);
+
+    // Send status update
+    mainWindow.webContents.send("status", {
+      kind: "service_status",
+      name: serviceName,
+      state: serviceStatus.state,
+      details: {
+        displayName: serviceStatus.displayName,
+        description: serviceStatus.description,
+      },
+    });
+
+    return serviceStatus;
+  });
+
+  ipcMain.handle("getMqttStatus", () => {
+    if (!mqttBridge) {
+      return { connected: false, lastError: "MQTT bridge not initialized" };
+    }
+    
+    // Use a public method to get the status instead of accessing the private client property
+    const status = mqttBridge.getConnectionStatus();
+    console.log("MQTT Status requested:", status);
+    
+    return status;
+  });
+
+  ipcMain.handle("request-system-metrics", async () => {
+    // Request immediate metrics update
+    if (systemMonitor) {
+      await systemMonitor.collectAndSendMetrics();
+      return;
+    }
+    throw new Error("System monitor not initialized");
   });
 };
 
 const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) => {
   nativeTheme.addListener("updated", () => {
+    // Determine new icon based on current theme
+    const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-dark.png" : "app-icon-light.png";
+    const iconPath = join(__dirname, "..", "build", iconName);
+    
     for (const browserWindow of allBrowserWindows) {
+      // Update the icon
+      browserWindow.setIcon(iconPath);
+      
+      // Notify renderer about theme change
       browserWindow.webContents.send("nativeThemeChanged");
     }
   });
 };
 
-// Create a function to get CPU usage
-async function getCpuUsage() {
-  const cpus = os.cpus();
-  const totalIdle = cpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
-  const totalTick = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((sum, time) => sum + time, 0), 0);
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const newCpus = os.cpus();
-  const newTotalIdle = newCpus.reduce((acc, cpu) => acc + cpu.times.idle, 0);
-  const newTotalTick = newCpus.reduce(
-    (acc, cpu) => acc + Object.values(cpu.times).reduce((sum, time) => sum + time, 0),
-    0,
-  );
-
-  const idleDiff = newTotalIdle - totalIdle;
-  const tickDiff = newTotalTick - totalTick;
-
-  return 100 - Math.round((idleDiff / tickDiff) * 100);
-}
-
-// Function to get memory usage
-function getMemoryUsage() {
-  const total = os.totalmem();
-  const free = os.freemem();
-  const used = total - free;
-  return Math.round((used / total) * 100);
-}
-
 (async () => {
   await app.whenReady();
   const mainWindow = createBrowserWindow();
   loadFileOrUrl(mainWindow);
-  registerIpcEventListeners();
+  
+  // Initialize config manager
+  const configManager = new ConfigManager();
+  
+  // Initialize the MQTT bridge with the config manager (fix the duplicate)
+  mqttBridge = new MqttBridge(mainWindow, configManager);
+  
+  // Initialize and start the system monitor
+  systemMonitor = new SystemMonitor(mainWindow);
+  systemMonitor.start();
+
+  // Register IPC handlers AFTER creating the mqttBridge
+  registerIpcEventListeners(mainWindow);
   registerNativeThemeEventListeners(BrowserWindow.getAllWindows());
 
-  // Initialize the MQTT bridge
-  new MqttBridge(mainWindow);
-
-  // Send metrics every second
-  setInterval(() => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      // Get CPU usage
-      getCpuUsage().then((cpuUsage) => {
-        mainWindow.webContents.send("metrics", {
-          topic: "cpu",
-          value: cpuUsage.toString(),
-        });
-      });
-
-      // Get memory usage
-      const memoryUsage = getMemoryUsage();
-      mainWindow.webContents.send("metrics", {
-        topic: "memory",
-        value: memoryUsage.toString(),
-      });
-    }
-  }, 1000);
+  // Clean up resources when window is closed
+  mainWindow.on("closed", () => {
+    systemMonitor.stop();
+  });
 })();

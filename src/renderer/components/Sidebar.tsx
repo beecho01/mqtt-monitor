@@ -14,15 +14,21 @@ const useStyles = makeStyles({
     flexDirection: "column",
     width: "100%",
     height: "100%",
-    gap: "8px",
+    gap: "12px",
   },
 
   spread: {
     justifyContent: "space-between",
   },
 
-  progressBar: {
-    width: "85%",
+  upperTabs: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+
+  tab: {
+    width: "100%",
   },
 });
 
@@ -60,15 +66,15 @@ export const Sidebar = ({ theme }: { theme: Theme }) => {
           appearance="subtle"
           className={mergeClasses(styles.flex, styles.spread)}
         >
-          <div>
-            <Tab icon={<HomeRegular />} value="/">
+          <div className={styles.upperTabs}>
+            <Tab className={styles.tab} icon={<HomeRegular />} value="/">
               Dashboard
             </Tab>
-            <Tab icon={<BugRegular />} value="/logview">
+            <Tab className={styles.tab} icon={<BugRegular />} value="/logview">
               Log View
             </Tab>
           </div>
-          <Tab icon={<SettingsRegular />} value="/configuration">
+          <Tab className={styles.tab} icon={<SettingsRegular />} value="/configuration">
             Configuration
           </Tab>
         </TabList>
