@@ -95,7 +95,7 @@ export class MqttBridge {
       this.client = null;
     }
 
-    // Default MQTT URL 
+    // Default MQTT URL
     let mqttUrl = "mqtt://broker:1883";
     this.currentTopic = config.topic || "default";
 
@@ -210,7 +210,7 @@ export class MqttBridge {
       }
     });
 
-     // Send status update on connect
+    // Send status update on connect
     this.client.on("connect", () => {
       //console.log("MQTT connected");
       this.sendMqttStatus();
@@ -219,7 +219,7 @@ export class MqttBridge {
     // Send status update on close
     this.client.on("close", () => {
       console.log("MQTT connection closed");
-      this.sendMqttStatus(); 
+      this.sendMqttStatus();
     });
 
     // Send status update on error
@@ -253,7 +253,8 @@ export class MqttBridge {
       () => {
         this.updateServiceStatuses();
       },
-      (config?.status_update_interval ?? 15) * 1000);
+      (config?.status_update_interval ?? 15) * 1000,
+    );
 
     // System metrics check every 30 seconds
     this.systemCheckInterval = setInterval(() => {
@@ -348,7 +349,6 @@ export class MqttBridge {
 
   private async updateSystemStatus(): Promise<void> {
     try {
-
       // Get current config
       const config = this.configManager.getConfig();
       if (!config) return;
@@ -431,20 +431,6 @@ export class MqttBridge {
           }
         });
       }
-
-      // System uptime
-      if (config.uptime_enabled !== false && this.client && this.client.connected) {
-        const uptimeTopic = `${this.currentTopic}/system/uptime`;
-
-        // Publish the system uptime
-        this.client.publish(uptimeTopic, systemInfo.uptime.toString());
-        this.win.webContents.send("metrics", {
-          topic: uptimeTopic,
-          value: systemInfo.uptime.toString(),
-          source: "mqtt",
-        });
-      }
-      //console.log(`System status published: CPU ${cpuPercentage}%, Memory ${memPercentage}%`);
     } catch (error) {
       console.error("Error updating system status:", error);
     }
@@ -475,7 +461,6 @@ export class MqttBridge {
           state: "Configuration updated and published",
         });
       } else {
-
         // If not connected, just save the config
         this.win.webContents.send("status", {
           kind: "config",
@@ -530,7 +515,6 @@ export class MqttBridge {
   // Method to send current status to the renderer
   private sendMqttStatus(): void {
     if (this.win && !this.win.isDestroyed()) {
-
       // Send MQTT connection status
       this.win.webContents.send("status", {
         kind: "mqtt",

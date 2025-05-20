@@ -23,9 +23,9 @@ import {
   DismissCircleFilled,
   SaveRegular,
 } from "@fluentui/react-icons";
+import { StatusPayload } from "@shared/types";
 import { useEffect, useState } from "react";
 import { useConfig } from "../hooks/useConfig";
-import { StatusPayload } from "@shared/types";
 
 const useStyles = makeStyles({
   header: {
@@ -184,7 +184,6 @@ export default function Configuration() {
     window.api.onStatus(handleMqttStatus);
 
     return () => {
-
       // Cleanup the event listener when the component unmounts
       window.api.offStatus(handleMqttStatus);
     };
@@ -200,7 +199,7 @@ export default function Configuration() {
           <ToastTitle>Success</ToastTitle>
           Configuration saved and published successfully
         </Toast>,
-        { position: "top", intent: "success" }
+        { position: "top", intent: "success" },
       );
     } else {
       dispatchToast(
@@ -208,7 +207,7 @@ export default function Configuration() {
           <ToastTitle>Error</ToastTitle>
           Failed to save configuration. Please try again.
         </Toast>,
-        { position: "top", intent: "error" }
+        { position: "top", intent: "error" },
       );
     }
 
@@ -218,14 +217,26 @@ export default function Configuration() {
   const renderConnectionStatus = () => {
     if (mqttStatus.connected) {
       return (
-        <Badge className={styles.badge} appearance="filled" color="success" icon={<CheckmarkCircleFilled />} size="large">
+        <Badge
+          className={styles.badge}
+          appearance="filled"
+          color="success"
+          icon={<CheckmarkCircleFilled />}
+          size="large"
+        >
           Connected
         </Badge>
       );
     } else {
       return (
         <Tooltip content={mqttStatus.lastError || "Not connected to MQTT broker"} relationship="label">
-          <Badge className={styles.badge} appearance="filled" color="danger" icon={<DismissCircleFilled />} size="large">
+          <Badge
+            className={styles.badge}
+            appearance="filled"
+            color="danger"
+            icon={<DismissCircleFilled />}
+            size="large"
+          >
             Disconnected
           </Badge>
         </Tooltip>
@@ -370,11 +381,6 @@ export default function Configuration() {
             label="Disk Usage"
             checked={cfg.disk_enabled}
             onChange={(_, data) => setCfg({ ...cfg, disk_enabled: !!data.checked })}
-          />
-          <Checkbox
-            label="System Uptime"
-            checked={cfg.uptime_enabled}
-            onChange={(_, data) => setCfg({ ...cfg, uptime_enabled: !!data.checked })}
           />
         </Field>
 

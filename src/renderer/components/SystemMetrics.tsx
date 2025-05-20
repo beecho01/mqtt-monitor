@@ -1,9 +1,9 @@
 import { makeStyles, Text } from "@fluentui/react-components";
 import { StatusPayload } from "@shared/types";
 import { useEffect, useState } from "react";
+import { useConfig } from "../hooks/useConfig";
 import { MetricCard } from "./MetricCard";
 import { SkeletonCard } from "./SkeletonCard";
-import { useConfig } from "../hooks/useConfig";
 
 const useStyles = makeStyles({
   container: {
@@ -45,28 +45,22 @@ export const SystemMetrics = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     // Function to update system metrics from status events
     const handleStatus = (payload: StatusPayload) => {
-
       // First check if the kind is "system"
       if (payload.kind === "system") {
         setSystemMetrics((prev) => {
-
           // Create a new state object based on the previous state
           const newState = { ...prev };
 
           // Update the appropriate metric based on the payload name
           if (payload.name === "cpu") {
-
             // Parse cpu load percentage value from string like "50.0%" to number
             newState.cpu = payload.state;
           } else if (payload.name === "memory") {
-
             // Parse memory percentage value from string like "50.0%" to number
             newState.memory = payload.state;
           } else if (payload.name.startsWith("disk_")) {
-
             // Extract the drive name from the payload name (e.g., "disk_C")
             const drive = payload.name.replace("disk_", "");
             newState.disks = { ...newState.disks, [drive]: payload.state };
@@ -83,7 +77,6 @@ export const SystemMetrics = () => {
     window.api.onStatus(handleStatus);
 
     return () => {
-
       // Cleanup: remove the event listener when the component unmounts
       window.api.offStatus(handleStatus);
     };
@@ -97,17 +90,14 @@ export const SystemMetrics = () => {
   };
 
   // Check if all system metrics are disabled in config
-  const allMetricsDisabled = 
-    (!config.cpu_enabled && !config.memory_enabled && !config.disk_enabled);
-  
+  const allMetricsDisabled = !config.cpu_enabled && !config.memory_enabled && !config.disk_enabled;
+
   // If all metrics are disabled, show a message
   if (allMetricsDisabled) {
     return (
       <div className={styles.container}>
         <Text className={styles.title}>System Metrics</Text>
-        <div className={styles.emptyState}>
-          No system metrics enabled. Enable metrics in the Configuration page.
-        </div>
+        <div className={styles.emptyState}>No system metrics enabled. Enable metrics in the Configuration page.</div>
       </div>
     );
   }
@@ -142,15 +132,16 @@ export const SystemMetrics = () => {
             showProgress={true}
           />
         )}
-        {config.disk_enabled && Object.entries(systemMetrics.disks).map(([drive, usage]) => (
-          <MetricCard
-            key={drive}
-            label={`Disk ${drive} Usage`}
-            value={parsePercentage(usage)}
-            suffix="%"
-            showProgress={true}
-          />
-        ))}
+        {config.disk_enabled &&
+          Object.entries(systemMetrics.disks).map(([drive, usage]) => (
+            <MetricCard
+              key={drive}
+              label={`Disk ${drive} Usage`}
+              value={parsePercentage(usage)}
+              suffix="%"
+              showProgress={true}
+            />
+          ))}
         {config.disk_enabled && Object.keys(systemMetrics.disks).length === 0 && !loading && (
           <SkeletonCard variant="metric" />
         )}

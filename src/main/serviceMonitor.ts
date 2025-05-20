@@ -1,7 +1,6 @@
 import { exec } from "child_process";
 
 export class ServiceMonitor {
-
   // Check if a Windows service is running by name
   public static checkService(
     serviceName: string,

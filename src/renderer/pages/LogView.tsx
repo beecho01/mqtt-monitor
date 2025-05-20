@@ -63,7 +63,6 @@ export default function LogView() {
   const mqttLabelId = "mqtt-log-label";
 
   useEffect(() => {
-
     // Listen for metrics messages
     const metricsHandler = (payload: MetricsPayload) => {
       console.log("Received metrics:", payload);
@@ -93,7 +92,6 @@ export default function LogView() {
     window.api.onStatus(statusHandler);
 
     return () => {
-
       // Cleanup: remove the event listeners when the component unmounts
       window.api.offMetrics(metricsHandler);
       window.api.offStatus(statusHandler);

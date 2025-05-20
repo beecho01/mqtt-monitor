@@ -45,7 +45,6 @@ export const ApplicationMetrics = () => {
       try {
         let config;
         try {
-
           // Attempt to load config from the main process
           config = await window.api.getConfig();
         } catch (error) {
@@ -66,7 +65,6 @@ export const ApplicationMetrics = () => {
           // Set loading to false after a brief delay
           setTimeout(() => setLoading(false), 800);
         } else {
-
           // No config found or invalid config
           setLoading(false);
         }

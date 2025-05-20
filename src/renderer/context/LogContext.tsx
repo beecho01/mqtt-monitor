@@ -51,7 +51,6 @@ export const LogProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Add event listeners
     window.api.onMetrics(metricsHandler);
     window.api.onStatus(statusHandler);
-
   }, []);
 
   return (

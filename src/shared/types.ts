@@ -18,7 +18,6 @@ export interface ConfigPayload {
   cpu_enabled: boolean;
   memory_enabled: boolean;
   disk_enabled: boolean;
-  uptime_enabled: boolean;
 }
 
 // Process and Service Status types used across components

@@ -45,7 +45,6 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Listen for status updates
   useEffect(() => {
     const handleStatus = (data: StatusPayload) => {
-
       // Check the kind of status and update accordingly
       // If it's a process status
       if (data.kind === "process_status") {
@@ -57,7 +56,7 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           details: data.details,
         });
 
-      // If it's a service status
+        // If it's a service status
       } else if (data.kind === "service_status") {
         const details = data.details || {};
         updateService({

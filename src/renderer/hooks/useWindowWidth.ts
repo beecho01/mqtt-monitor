@@ -20,7 +20,6 @@ export function useWindowWidth(config: number | WidthCalculation = 70): number {
       if (typeof config === "number") {
         percentage = config;
       } else {
-
         // If config is an object, get percentage and offset
         percentage = config.percentage;
         offset = config.offset || 0;
@@ -40,7 +39,6 @@ export function useWindowWidth(config: number | WidthCalculation = 70): number {
     window.addEventListener("resize", calculateWidth);
 
     return () => {
-
       // Cleanup: remove the event listener when the component unmounts
       window.removeEventListener("resize", calculateWidth);
     };

@@ -19,7 +19,8 @@ import Dashboard from "./pages/Dashboard";
 import LogView from "./pages/LogView";
 
 // Set the default theme based on the system preference
-const shouldUseDarkColors = (): boolean => window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+const shouldUseDarkColors = (): boolean =>
+  window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 // Get the current theme based on the system preference
 const getTheme = () => (shouldUseDarkColors() ? webDarkTheme : webLightTheme);

@@ -14,7 +14,7 @@ const createBrowserWindow = (): BrowserWindow => {
 
   // Determine icon based on theme
   const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-light.png" : "app-icon-dark.png";
-  
+
   // Create base window options
   const windowOptions: Electron.BrowserWindowConstructorOptions = {
     width: 1152,
@@ -81,7 +81,7 @@ const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
     if (!mqttBridge) {
       return { connected: false, lastError: "MQTT bridge not initialised" };
     }
-    
+
     // Use a public method to get the status instead of accessing the private client property
     const status = mqttBridge.getConnectionStatus();
     //console.log("MQTT Status requested:", status);
@@ -90,7 +90,6 @@ const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
 
   // Handle MQTT connection
   ipcMain.handle("request-system-metrics", async () => {
-   
     // Request immediate metrics update
     if (systemMonitor) {
       await systemMonitor.collectAndSendMetrics();
@@ -103,15 +102,13 @@ const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
 // Register native theme event listeners
 const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) => {
   nativeTheme.addListener("updated", () => {
-
     // Determine new icon based on current theme
     const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-dark.png" : "app-icon-light.png";
     const iconPath = join(__dirname, "..", "build", iconName);
     for (const browserWindow of allBrowserWindows) {
-
       // Update the icon
       browserWindow.setIcon(iconPath);
-      
+
       // Notify renderer about theme change
       browserWindow.webContents.send("nativeThemeChanged");
     }
@@ -122,13 +119,13 @@ const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) =
   await app.whenReady();
   const mainWindow = createBrowserWindow();
   loadFileOrUrl(mainWindow);
-  
+
   // Initialise config manager
   const configManager = new ConfigManager();
-  
+
   // Initialise the MQTT bridge with the config manager (fix the duplicate)
   mqttBridge = new MqttBridge(mainWindow, configManager);
-  
+
   // Initialise and start the system monitor
   systemMonitor = new SystemMonitor(mainWindow);
   systemMonitor.start();

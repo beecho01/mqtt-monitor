@@ -16,7 +16,6 @@ export const useConfig = () => {
     cpu_enabled: true,
     memory_enabled: true,
     disk_enabled: true,
-    uptime_enabled: true,
   });
 
   const [loading, setLoading] = useState(true);
@@ -28,7 +27,7 @@ export const useConfig = () => {
       setLoading(true);
       const savedConfig = await window.api.getConfig();
       console.log("Config loaded:", savedConfig);
-      
+
       // Type guard to ensure we have a valid config
       if (savedConfig && typeof savedConfig === "object") {
         setConfig({
@@ -36,14 +35,13 @@ export const useConfig = () => {
           ...savedConfig,
         });
       }
-      
+
       // Clear any errors if config loaded successfully
       setError(null);
     } catch (err) {
-
       console.error("Error loading configuration:", err);
-      setError(err instanceof Error ? err : new Error('Unknown error loading config'));
-      
+      setError(err instanceof Error ? err : new Error("Unknown error loading config"));
+
       // Try to load from localStorage as fallback
       const storedConfig = localStorage.getItem("app-config");
       if (storedConfig) {
@@ -58,7 +56,6 @@ export const useConfig = () => {
         }
       }
     } finally {
-
       // Set loading to false after attempting to load config regardless of success or failure
       setLoading(false);
     }
@@ -76,7 +73,6 @@ export const useConfig = () => {
     window.api.onConfigUpdated(handleConfigUpdated);
 
     return () => {
-
       // Cleanup: remove the event listener when the component unmounts
       window.api.offConfigUpdated(handleConfigUpdated);
     };
@@ -85,7 +81,6 @@ export const useConfig = () => {
   // Function to update the config
   const updateConfig = async (newConfig: ConfigPayload) => {
     try {
-
       // Update the config in the main process and localStorage
       await window.api.updateConfig(newConfig);
       setConfig(newConfig);
@@ -96,9 +91,8 @@ export const useConfig = () => {
       }
       return true;
     } catch (err) {
-
       // Handle error updating config and set error state
-      setError(err instanceof Error ? err : new Error('Unknown error updating config'));
+      setError(err instanceof Error ? err : new Error("Unknown error updating config"));
       console.error("Error updating config:", err);
       return false;
     }

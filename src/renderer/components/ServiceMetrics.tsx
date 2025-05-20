@@ -55,7 +55,6 @@ export const ServiceMetrics = () => {
         try {
           config = await window.api.getConfig();
         } catch (error) {
-
           // Handle error calling getConfig from the main process
           console.error("Error calling getConfig:", error);
 
@@ -74,7 +73,6 @@ export const ServiceMetrics = () => {
       } catch (error) {
         console.error("Error in loadConfig:", error);
       } finally {
-
         // Set loading to false
         setLoading(false);
       }

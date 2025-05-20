@@ -86,12 +86,12 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.removeListener("status", handler);
     });
     statusHandlers.clear();
-    
+
     configHandlers.forEach((handler) => {
       ipcRenderer.removeListener("config-updated", handler);
     });
     configHandlers.clear();
-    
+
     metricsHandlers.forEach((handler) => {
       ipcRenderer.removeListener("metrics", handler);
     });

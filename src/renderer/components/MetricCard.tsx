@@ -12,7 +12,7 @@ interface Props {
 
 const useStyles = makeStyles({
   card: {
-    width: "100%", 
+    width: "100%",
     minWidth: "240px",
     maxWidth: "100%",
     height: "fit-content",

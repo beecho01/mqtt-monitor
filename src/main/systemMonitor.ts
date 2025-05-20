@@ -1,5 +1,4 @@
 import { BrowserWindow } from "electron";
-import os from "os";
 import si from "systeminformation";
 
 export class SystemMonitor {
@@ -35,11 +34,6 @@ export class SystemMonitor {
     }
   }
 
-  // Get current system uptime in seconds
-  public static getUptime(): number {
-    return os.uptime();
-  }
-
   // Collect all system information and return it
   public static async getSystemInfo(): Promise<{
     cpu: number;
@@ -51,7 +45,6 @@ export class SystemMonitor {
       free: number;
       percentUsed: number;
     }>;
-    uptime: number;
   }> {
     const cpu = await si.currentLoad();
     const mem = await si.mem();
@@ -69,35 +62,28 @@ export class SystemMonitor {
       cpu: cpuLoad,
       memory: memoryUsage,
       disks: diskInfo,
-      uptime: os.uptime(),
     };
   }
 
   // Private method to collect metrics for internal use
-  private async collectAllMetrics(): Promise<void> {
-  }
+  private async collectAllMetrics(): Promise<void> {}
 
   //Collect and send system metrics
   public async collectAndSendMetrics(): Promise<void> {
     try {
-
       // Use the existing getSystemInfo method to collect all metrics at once
       const systemInfo = await SystemMonitor.getSystemInfo();
-      
+
       // Send CPU metrics
       this.sendMetric("cpu", `${systemInfo.cpu.toFixed(1)}%`);
-      
+
       // Send memory metrics
       this.sendMetric("memory", `${systemInfo.memory.toFixed(1)}%`);
-      
+
       // Send disk metrics
       for (const disk of systemInfo.disks) {
         this.sendMetric(`disk_${disk.drive}`, `${disk.percentUsed.toFixed(1)}%`);
       }
-      
-      // Send uptime if needed
-      this.sendMetric("uptime", `${Math.floor(systemInfo.uptime / 60 / 60)} hours`);
-      
     } catch (error) {
       console.error("Error collecting system metrics:", error);
     }
