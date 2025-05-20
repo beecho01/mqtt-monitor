@@ -19,13 +19,13 @@ const useStyles = makeStyles({
     fontStyle: "italic",
   },
   processRunning: {
-    color: "#107C10", // Green
+    color: "#107C10",
   },
   processStopped: {
-    color: "#A80000", // Red
+    color: "#A80000",
   },
   processPending: {
-    color: "#797775", // Gray
+    color: "#797775",
   },
   statusIcon: {
     marginRight: "0px",
@@ -43,12 +43,11 @@ export const ApplicationMetrics = () => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        console.log("Loading process configuration...");
-
         let config;
         try {
+
+          // Attempt to load config from the main process
           config = await window.api.getConfig();
-          console.log("Config loaded:", config);
         } catch (error) {
           console.error("Error calling getConfig:", error);
 
@@ -60,19 +59,26 @@ export const ApplicationMetrics = () => {
           }
         }
 
+        // Check if config is valid
         if (config && config.process_check) {
           setConfiguredProcesses(config.process_check);
+
           // Set loading to false after a brief delay
           setTimeout(() => setLoading(false), 800);
         } else {
+
+          // No config found or invalid config
           setLoading(false);
         }
       } catch (error) {
         console.error("Error in loadConfig:", error);
+
+        // Set loading to false in case of error
         setLoading(false);
       }
     };
 
+    // Load config on mount
     loadConfig();
 
     // Listen for config updates
@@ -80,11 +86,10 @@ export const ApplicationMetrics = () => {
       loadConfig();
     };
 
+    // Add event listener for config updates
     window.api.onConfigUpdated(handleConfigUpdate);
 
-    return () => {
-      // Clean up event listener if needed
-    };
+    return () => {};
   }, []);
 
   // Filter processes to only show configured ones with explicit type annotation
@@ -92,6 +97,7 @@ export const ApplicationMetrics = () => {
     return processes.filter((process) => configuredProcesses.includes(process.name));
   };
 
+  // Get the list of processes to display
   const displayProcesses = filterConfiguredProcesses();
 
   // Render status icon based on process state

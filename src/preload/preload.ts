@@ -22,8 +22,6 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
   updateConfig: (config: ConfigPayload) => ipcRenderer.invoke("update-config", config),
-
-  // Status events with proper handler tracking
   onStatus: (callback: StatusCallback) => {
     const handler = (_event: unknown, data: StatusPayload) => callback(data);
     statusHandlers.set(callback, handler);
@@ -36,7 +34,6 @@ contextBridge.exposeInMainWorld("api", {
       statusHandlers.delete(callback);
     }
   },
-
   onStatusOnce: (callback: StatusCallback) => {
     const handler = (_event: unknown, data: StatusPayload) => {
       callback(data);
@@ -45,8 +42,6 @@ contextBridge.exposeInMainWorld("api", {
     statusHandlers.set(callback, handler);
     ipcRenderer.once("status", handler);
   },
-
-  // Config update events with proper handler tracking
   onConfigUpdated: (callback: ConfigCallback) => {
     const handler = () => callback();
     configHandlers.set(callback, handler);
@@ -59,8 +54,6 @@ contextBridge.exposeInMainWorld("api", {
       configHandlers.delete(callback);
     }
   },
-
-  // Metrics events with proper handler tracking
   onMetrics: (callback: MetricsCallback) => {
     const handler = (_event: unknown, data: MetricsPayload) => callback(data);
     metricsHandlers.set(callback, handler);
@@ -73,7 +66,6 @@ contextBridge.exposeInMainWorld("api", {
       metricsHandlers.delete(callback);
     }
   },
-
   onMetricsOnce: (callback: MetricsCallback) => {
     const handler = (_event: unknown, data: MetricsPayload) => {
       callback(data);
@@ -82,7 +74,6 @@ contextBridge.exposeInMainWorld("api", {
     metricsHandlers.set(callback, handler);
     ipcRenderer.once("metrics", handler);
   },
-
   checkProcess: (processName: string) => ipcRenderer.invoke("check-process", processName),
   checkService: (serviceName: string) => ipcRenderer.invoke("check-service", serviceName),
   reconnectMqtt: () => ipcRenderer.invoke("mqtt-reconnect"),
@@ -90,8 +81,6 @@ contextBridge.exposeInMainWorld("api", {
   requestSystemMetrics: () => ipcRenderer.invoke("request-system-metrics"),
   requestProcessStatus: (processNames: string[]) => ipcRenderer.invoke("request-process-status", processNames),
   requestServiceStatus: (serviceNames: string[]) => ipcRenderer.invoke("request-service-status", serviceNames),
-
-  // Method to clean up all handlers when application is shutting down
   cleanupHandlers: () => {
     statusHandlers.forEach((handler) => {
       ipcRenderer.removeListener("status", handler);

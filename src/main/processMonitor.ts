@@ -3,9 +3,11 @@
 import { exec } from "child_process";
 
 export class ProcessMonitor {
+
   // Check if a process is running by name
   public static checkProcess(processName: string): Promise<boolean> {
     return new Promise((resolve) => {
+
       // Command differs by platform
       const cmd =
         process.platform === "win32"
@@ -20,11 +22,14 @@ export class ProcessMonitor {
           return;
         }
 
-        // On Windows, if process exists, stdout will contain the process name
-        // On Unix, if process exists, stdout will not be empty
+        // On Windows, check if the process name is in the output
         if (process.platform === "win32") {
+          
+          // If process exists, stdout will contain the process name
           resolve(stdout.toLowerCase().includes(processName.toLowerCase()));
         } else {
+
+          // Otherwise check if stdout is not empty
           resolve(!!stdout.trim());
         }
       });

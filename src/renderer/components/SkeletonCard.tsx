@@ -40,7 +40,6 @@ const useStyles = makeStyles({
     height: "12px",
     marginTop: "8px",
   },
-  // For status-style cards
   statusRow: {
     display: "flex",
     alignItems: "center",
@@ -57,10 +56,9 @@ const useStyles = makeStyles({
     height: "20px",
     borderRadius: "10px",
   },
-  // Add this to control overall spacing and match real cards
   cardContent: {
-    marginTop: "0", // Remove top margin
-    padding: "0", // Remove padding
+    marginTop: "0",
+    padding: "0",
   },
 });
 

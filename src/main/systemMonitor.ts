@@ -12,28 +12,21 @@ export class SystemMonitor {
     this.intervalMs = intervalMs;
   }
 
-  /**
-   * Start collecting system metrics at regular intervals
-   */
+  // Start collecting system metrics at regular intervals
   public start(): void {
     if (this.intervalId) {
-      this.stop(); // Stop any existing interval
+      this.stop();
     }
-
     this.intervalId = setInterval(() => {
       if (this.win && !this.win.isDestroyed()) {
         this.collectAllMetrics();
       } else {
-        this.stop(); // Stop monitoring if window is closed
+        this.stop();
       }
     }, this.intervalMs);
-
-    console.log(`SystemMonitor: Started collecting metrics every ${this.intervalMs}ms`);
   }
 
-  /**
-   * Stop collecting system metrics
-   */
+  //Stop collecting system metrics
   public stop(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -42,16 +35,12 @@ export class SystemMonitor {
     }
   }
 
-  /**
-   * Get current system uptime in seconds
-   */
+  // Get current system uptime in seconds
   public static getUptime(): number {
     return os.uptime();
   }
 
-  /**
-   * Collect all system information and return it
-   */
+  // Collect all system information and return it
   public static async getSystemInfo(): Promise<{
     cpu: number;
     memory: number;
@@ -67,7 +56,6 @@ export class SystemMonitor {
     const cpu = await si.currentLoad();
     const mem = await si.mem();
     const disks = await si.fsSize();
-
     const cpuLoad = cpu.currentLoad;
     const memoryUsage = (mem.used / mem.total) * 100;
     const diskInfo = disks.map((d) => ({
@@ -77,7 +65,6 @@ export class SystemMonitor {
       free: d.size - d.used,
       percentUsed: (d.used / d.size) * 100,
     }));
-
     return {
       cpu: cpuLoad,
       memory: memoryUsage,
@@ -86,20 +73,14 @@ export class SystemMonitor {
     };
   }
 
-  /**
-   * Private method to collect metrics for internal use
-   */
+  // Private method to collect metrics for internal use
   private async collectAllMetrics(): Promise<void> {
-    // Removed publishing to prevent duplication
-    // SystemMonitor is now just for collecting metrics on demand
-    // MQTT publishing is handled entirely in mqtt.ts
   }
 
-  /**
-   * Collect and send system metrics
-   */
+  //Collect and send system metrics
   public async collectAndSendMetrics(): Promise<void> {
     try {
+
       // Use the existing getSystemInfo method to collect all metrics at once
       const systemInfo = await SystemMonitor.getSystemInfo();
       
@@ -122,9 +103,7 @@ export class SystemMonitor {
     }
   }
 
-  /**
-   * Send a metric to the renderer process
-   */
+  // Send a metric to the renderer process
   private sendMetric(name: string, value: string): void {
     if (this.win && !this.win.isDestroyed()) {
       this.win.webContents.send("status", {

@@ -18,7 +18,7 @@ export class ConfigManager {
       if (fs.existsSync(this.configPath)) {
         const data = fs.readFileSync(this.configPath, "utf8");
         this.config = JSON.parse(data);
-        console.log("Config loaded from disk:", this.configPath);
+        //console.log("Config loaded from disk:", this.configPath);
       } else {
         console.log("No config file exists yet at:", this.configPath);
       }
@@ -31,7 +31,7 @@ export class ConfigManager {
     try {
       this.config = config;
       fs.writeFileSync(this.configPath, JSON.stringify(config, null, 2), "utf8");
-      console.log("Config saved to disk:", this.configPath);
+      //console.log("Config saved to disk:", this.configPath);
     } catch (error) {
       console.error("Error saving config to disk:", error);
     }

@@ -24,16 +24,16 @@ const useStyles = makeStyles({
     fontStyle: "italic",
   },
   serviceRunning: {
-    color: "#107C10", // Green
+    color: "#107C10",
   },
   serviceStopped: {
-    color: "#A80000", // Red
+    color: "#A80000",
   },
   servicePending: {
-    color: "#797775", // Gray
+    color: "#797775",
   },
   servicePaused: {
-    color: "#F7630C", // Orange
+    color: "#F7630C",
   },
   statusIcon: {
     marginRight: "0px",
@@ -51,13 +51,12 @@ export const ServiceMetrics = () => {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        console.log("Loading service configuration...");
-
         let config;
         try {
           config = await window.api.getConfig();
-          console.log("Config loaded:", config);
         } catch (error) {
+
+          // Handle error calling getConfig from the main process
           console.error("Error calling getConfig:", error);
 
           // Fallback to localStorage if API call fails
@@ -68,16 +67,20 @@ export const ServiceMetrics = () => {
           }
         }
 
+        // Check if config is valid
         if (config && config.service_check) {
           setConfiguredServices(config.service_check);
         }
       } catch (error) {
         console.error("Error in loadConfig:", error);
       } finally {
+
+        // Set loading to false
         setLoading(false);
       }
     };
 
+    // Load config on component mount
     loadConfig();
 
     // Listen for config updates
@@ -85,11 +88,10 @@ export const ServiceMetrics = () => {
       loadConfig();
     };
 
+    // Register event listener for config updates
     window.api.onConfigUpdated(handleConfigUpdate);
 
-    return () => {
-      // Clean up event listener if needed
-    };
+    return () => {};
   }, []);
 
   // Render status icon based on service state
@@ -105,11 +107,11 @@ export const ServiceMetrics = () => {
     }
   };
 
-  // Gets display status text with proper capitalization
+  // Gets display status text with proper capitalisation
   const getDisplayStatus = (status: string) => {
     if (!status) return "Unknown";
 
-    // Capitalize first letter
+    // Capitalise first letter
     return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
@@ -118,6 +120,7 @@ export const ServiceMetrics = () => {
     return services.filter((service) => configuredServices.includes(service.name));
   };
 
+  // Get the list of services to display
   const displayServices = filterConfiguredServices();
 
   // Then use displayServices instead of services in your rendering

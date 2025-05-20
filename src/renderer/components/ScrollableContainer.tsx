@@ -35,7 +35,6 @@ const useStyles = makeStyles({
     flexGrow: 1,
     backgroundColor: tokens.colorNeutralBackground1,
 
-    // Custom scrollbar styling
     "&::-webkit-scrollbar": {
       width: "8px",
     },

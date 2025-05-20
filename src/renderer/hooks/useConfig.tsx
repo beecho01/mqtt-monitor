@@ -22,6 +22,7 @@ export const useConfig = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // Load config from the main process or localStorage
   const loadConfig = async () => {
     try {
       setLoading(true);
@@ -36,8 +37,10 @@ export const useConfig = () => {
         });
       }
       
+      // Clear any errors if config loaded successfully
       setError(null);
     } catch (err) {
+
       console.error("Error loading configuration:", err);
       setError(err instanceof Error ? err : new Error('Unknown error loading config'));
       
@@ -55,6 +58,8 @@ export const useConfig = () => {
         }
       }
     } finally {
+
+      // Set loading to false after attempting to load config regardless of success or failure
       setLoading(false);
     }
   };
@@ -67,27 +72,33 @@ export const useConfig = () => {
       loadConfig();
     };
 
+    // Listen for config updates from the main process
     window.api.onConfigUpdated(handleConfigUpdated);
 
     return () => {
+
+      // Cleanup: remove the event listener when the component unmounts
       window.api.offConfigUpdated(handleConfigUpdated);
     };
   }, []);
 
+  // Function to update the config
   const updateConfig = async (newConfig: ConfigPayload) => {
     try {
+
+      // Update the config in the main process and localStorage
       await window.api.updateConfig(newConfig);
       setConfig(newConfig);
-      
-      // Also update localStorage
       try {
         localStorage.setItem("app-config", JSON.stringify(newConfig));
       } catch (storageError) {
         console.warn("Failed to save config to localStorage:", storageError);
       }
-      
       return true;
     } catch (err) {
+
+      // Handle error updating config and set error state
+      setError(err instanceof Error ? err : new Error('Unknown error updating config'));
       console.error("Error updating config:", err);
       return false;
     }

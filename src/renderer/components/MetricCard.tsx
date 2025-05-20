@@ -60,7 +60,7 @@ export const MetricCard = ({
 }: Props): ReactElement => {
   const styles = useStyles();
 
-  // Function to determine badge appearance based on status
+  // Function to determine FluentUI badge appearance based on status
   const getBadgeAppearance = (status: string) => {
     status = status.toLowerCase();
     if (status === "running") return "filled";
@@ -80,7 +80,6 @@ export const MetricCard = ({
       />
 
       {valueAsNode ? (
-        // Display service status with icon and badge
         <div className={styles.valueContainer}>
           <div className={styles.statusValue}>
             {value}
@@ -88,7 +87,6 @@ export const MetricCard = ({
           </div>
         </div>
       ) : (
-        // Display metric with progress bar
         <div className={mergeClasses(styles.flex, styles.spread)}>
           {showProgress && <ProgressBar value={Number(value) / 100} className={styles.progressBar} />}
           <span>

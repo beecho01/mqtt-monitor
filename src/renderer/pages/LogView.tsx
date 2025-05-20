@@ -62,9 +62,7 @@ export default function LogView() {
   const statusLabelId = "status-log-label";
   const mqttLabelId = "mqtt-log-label";
 
-  // Set up IPC listeners for MQTT messages and fetch config
   useEffect(() => {
-    console.log("Setting up IPC listeners for MQTT messages");
 
     // Listen for metrics messages
     const metricsHandler = (payload: MetricsPayload) => {
@@ -78,7 +76,7 @@ export default function LogView() {
             message: payload.value,
           },
         ].slice(-100),
-      ); // Keep only the last 100 messages
+      );
     };
 
     // Listen for status messages
@@ -87,15 +85,16 @@ export default function LogView() {
       setStatusLogs((prev) => {
         const newEntry: [number, string] = [Date.now(), `${payload.kind}/${payload.name}: ${payload.state}`];
         return [...prev, newEntry].slice(-100);
-      }); // Keep only the last 100 status updates
+      });
     };
 
-    // Add event listeners using the correct API methods
+    // Add event listeners for metrics and status
     window.api.onMetrics(metricsHandler);
     window.api.onStatus(statusHandler);
 
-    // Clean up listeners on unmount
     return () => {
+
+      // Cleanup: remove the event listeners when the component unmounts
       window.api.offMetrics(metricsHandler);
       window.api.offStatus(statusHandler);
     };
@@ -122,6 +121,10 @@ export default function LogView() {
                     <Text style={{ color: "var(--colorWarningForeground)" }} weight="bold">
                       {eventLog}
                     </Text>
+                  ) : eventLog.includes("disconnected") ? (
+                    <Text style={{ color: tokens.colorPaletteRedBackground3 }} weight="bold">
+                      {eventLog}
+                    </Text>
                   ) : (
                     <Text style={{ color: "var(--colorBrandBackground)" }} weight="bold">
                       {eventLog}
@@ -132,8 +135,6 @@ export default function LogView() {
             })}
           </ScrollableContainer>
         </div>
-
-        {/* MQTT Log */}
         <div className={styles.logContainer} style={{ width: logWidth }}>
           <ScrollableContainer height={logHeight} label="MQTT Messages" labelId={mqttLabelId}>
             {[...mqttLogs].reverse().map((log, i) => {

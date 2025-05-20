@@ -1,14 +1,13 @@
 import { MetricsPayload, StatusPayload } from "@shared/types";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
-// Types for log entries
 export type LogEntry = {
   timestamp: number;
   topic: string;
   message: string;
 };
 
-export type StatusLogEntry = [number, string]; // [timestamp, message]
+export type StatusLogEntry = [number, string];
 
 interface LogContextType {
   mqttLogs: LogEntry[];
@@ -29,8 +28,6 @@ export const LogProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Set up listeners for logs
   useEffect(() => {
-    console.log("Setting up IPC listeners for logs in LogContext");
-
     const metricsHandler = (payload: MetricsPayload) => {
       setMqttLogs((prev) =>
         [
@@ -41,13 +38,13 @@ export const LogProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             message: payload.value,
           },
         ].slice(-1000),
-      ); // Keep last 1000 entries
+      );
     };
 
     const statusHandler = (payload: StatusPayload) => {
       setStatusLogs((prev) => {
         const newEntry: StatusLogEntry = [Date.now(), `${payload.kind}/${payload.name}: ${payload.state}`];
-        return [...prev, newEntry].slice(-1000); // Keep last 1000 entries
+        return [...prev, newEntry].slice(-1000);
       });
     };
 
@@ -55,7 +52,6 @@ export const LogProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.api.onMetrics(metricsHandler);
     window.api.onStatus(statusHandler);
 
-    // No need to clean up since we want logs to persist throughout the app lifecycle
   }, []);
 
   return (
@@ -72,7 +68,7 @@ export const LogProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 };
 
-// Custom hook for using log context
+// Custom hook to use the LogContext in a component
 export const useLogs = () => {
   const context = useContext(LogContext);
   if (context === undefined) {

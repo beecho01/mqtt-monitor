@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 
 export class ServiceMonitor {
+
   // Check if a Windows service is running by name
   public static checkService(
     serviceName: string,
@@ -14,6 +15,7 @@ export class ServiceMonitor {
       // PowerShell command to get service status and details
       const cmd = `powershell -Command "Get-Service -Name '${serviceName}' | Select-Object -Property Name,DisplayName,Status,Description | ConvertTo-Json"`;
 
+      // Execute the command
       exec(cmd, (error, stdout) => {
         if (error) {
           console.error(`Error checking service ${serviceName}:`, error);
@@ -29,8 +31,6 @@ export class ServiceMonitor {
 
           // Convert numeric Status to string status
           if (serviceData.Status !== null && serviceData.Status !== undefined) {
-            // Map Windows service status codes to readable strings
-            // https://docs.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontrollerstatus
             switch (serviceData.Status) {
               case 1:
                 statusStr = "stopped";

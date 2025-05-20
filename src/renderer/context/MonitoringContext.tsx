@@ -1,7 +1,6 @@
 import { ProcessStatus, ServiceStatus, StatusPayload } from "@shared/types";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Context type definition
 interface MonitoringContextType {
   processes: ProcessStatus[];
   services: ServiceStatus[];
@@ -9,10 +8,8 @@ interface MonitoringContextType {
   updateService: (service: ServiceStatus) => void;
 }
 
-// Create the context
 const MonitoringContext = createContext<MonitoringContextType | undefined>(undefined);
 
-// Provider component
 export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [processes, setProcesses] = useState<ProcessStatus[]>([]);
   const [services, setServices] = useState<ServiceStatus[]>([]);
@@ -48,8 +45,9 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // Listen for status updates
   useEffect(() => {
     const handleStatus = (data: StatusPayload) => {
-      console.log("Status update received:", data);
 
+      // Check the kind of status and update accordingly
+      // If it's a process status
       if (data.kind === "process_status") {
         updateProcess({
           name: data.name,
@@ -58,10 +56,10 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           description: data.details?.description as string | undefined,
           details: data.details,
         });
-      } else if (data.kind === "service_status") {
-        // Cast details to Record<string, unknown> to safely access properties
-        const details = data.details || {};
 
+      // If it's a service status
+      } else if (data.kind === "service_status") {
+        const details = data.details || {};
         updateService({
           name: data.name,
           status: data.state,
@@ -75,9 +73,7 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     // Register event handler
     window.api.onStatus(handleStatus);
 
-    return () => {
-      // If there's a way to unsubscribe
-    };
+    return () => {};
   }, []);
 
   return (
@@ -94,7 +90,7 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   );
 };
 
-// Custom hook for using the context
+// Custom hook for using the context in components
 export const useMonitoring = () => {
   const context = useContext(MonitoringContext);
   if (context === undefined) {

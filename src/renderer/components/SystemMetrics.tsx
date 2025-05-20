@@ -31,7 +31,7 @@ const useStyles = makeStyles({
 
 export const SystemMetrics = () => {
   const styles = useStyles();
-  const { config } = useConfig(); // Get current configuration
+  const { config } = useConfig();
 
   const [systemMetrics, setSystemMetrics] = useState<{
     cpu: string | null;
@@ -45,29 +45,36 @@ export const SystemMetrics = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     // Function to update system metrics from status events
     const handleStatus = (payload: StatusPayload) => {
+
       // First check if the kind is "system"
       if (payload.kind === "system") {
         setSystemMetrics((prev) => {
+
           // Create a new state object based on the previous state
           const newState = { ...prev };
 
           // Update the appropriate metric based on the payload name
           if (payload.name === "cpu") {
+
+            // Parse cpu load percentage value from string like "50.0%" to number
             newState.cpu = payload.state;
           } else if (payload.name === "memory") {
+
+            // Parse memory percentage value from string like "50.0%" to number
             newState.memory = payload.state;
           } else if (payload.name.startsWith("disk_")) {
+
             // Extract the drive name from the payload name (e.g., "disk_C")
             const drive = payload.name.replace("disk_", "");
             newState.disks = { ...newState.disks, [drive]: payload.state };
           }
-
           return newState;
         });
 
-        // Once we receive any system metrics, we're no longer loading
+        // Set loading to false after receiving the first status update
         setLoading(false);
       }
     };
@@ -76,6 +83,8 @@ export const SystemMetrics = () => {
     window.api.onStatus(handleStatus);
 
     return () => {
+
+      // Cleanup: remove the event listener when the component unmounts
       window.api.offStatus(handleStatus);
     };
   }, []);
@@ -91,6 +100,7 @@ export const SystemMetrics = () => {
   const allMetricsDisabled = 
     (!config.cpu_enabled && !config.memory_enabled && !config.disk_enabled);
   
+  // If all metrics are disabled, show a message
   if (allMetricsDisabled) {
     return (
       <div className={styles.container}>
@@ -102,6 +112,7 @@ export const SystemMetrics = () => {
     );
   }
 
+  // If loading, show skeleton cards
   if (loading) {
     return (
       <div className={styles.container}>
@@ -115,16 +126,14 @@ export const SystemMetrics = () => {
     );
   }
 
+  // Render the system metrics once loaded
   return (
     <div className={styles.container}>
       <Text className={styles.title}>System Metrics</Text>
       <div className={styles.metricsGrid}>
-        {/* CPU Usage - only show if enabled in config */}
         {config.cpu_enabled && systemMetrics.cpu !== null && (
           <MetricCard label="CPU Usage" value={parsePercentage(systemMetrics.cpu)} suffix="%" showProgress={true} />
         )}
-
-        {/* Memory Usage - only show if enabled in config */}
         {config.memory_enabled && systemMetrics.memory !== null && (
           <MetricCard
             label="Memory Usage"
@@ -133,8 +142,6 @@ export const SystemMetrics = () => {
             showProgress={true}
           />
         )}
-
-        {/* Disk Usage - only show if enabled in config */}
         {config.disk_enabled && Object.entries(systemMetrics.disks).map(([drive, usage]) => (
           <MetricCard
             key={drive}
@@ -144,8 +151,6 @@ export const SystemMetrics = () => {
             showProgress={true}
           />
         ))}
-
-        {/* Only show disk placeholder if disk metrics are enabled but we don't have data yet */}
         {config.disk_enabled && Object.keys(systemMetrics.disks).length === 0 && !loading && (
           <SkeletonCard variant="metric" />
         )}

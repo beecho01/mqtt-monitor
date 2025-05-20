@@ -18,9 +18,10 @@ import Settings from "./pages/Configuration";
 import Dashboard from "./pages/Dashboard";
 import LogView from "./pages/LogView";
 
-const shouldUseDarkColors = (): boolean =>
-  window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+// Set the default theme based on the system preference
+const shouldUseDarkColors = (): boolean => window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+// Get the current theme based on the system preference
 const getTheme = () => (shouldUseDarkColors() ? webDarkTheme : webLightTheme);
 
 export const App = () => {
@@ -57,7 +58,7 @@ export const App = () => {
                 display: "flex",
                 flexDirection: "row",
                 boxSizing: "border-box",
-                overflow: "hidden", // Prevents outer container from scrolling
+                overflow: "hidden",
               }}
             >
               <Sidebar theme={theme} />
@@ -69,13 +70,13 @@ export const App = () => {
                   gap: 20,
                   padding: 20,
                   boxSizing: "border-box",
-                  overflow: "hidden", // Prevents this container from scrolling
+                  overflow: "hidden",
                 }}
               >
                 <div
                   style={{
                     flexGrow: 1,
-                    overflowY: "auto", // Enables vertical scrolling for content area
+                    overflowY: "auto",
                     scrollBehavior: "smooth",
                   }}
                 >
@@ -85,7 +86,11 @@ export const App = () => {
                     <Route path="/configuration" element={<Settings />} />
                   </Routes>
                 </div>
-                {/* <MessageBar>
+                {/* 
+
+                For future available update notification
+                
+                <MessageBar>
                   <MessageBarBody>
                     <MessageBarTitle>Update available</MessageBarTitle>
                     Click <Link>here</Link> to install.

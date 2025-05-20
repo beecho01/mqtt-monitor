@@ -76,28 +76,21 @@ const useStyles = makeStyles({
     marginBottom: "12px",
   },
   processInput: {
-    flexGrow: 1, // This will make the input take all available space
+    flexGrow: 1,
   },
   addButton: {
     minWidth: "unset",
-    flexShrink: 0, // Prevent button from shrinking
+    flexShrink: 0,
     backgroundColor: tokens.colorNeutralStroke1,
-    // Hover state
     "&:hover": {
       backgroundColor: tokens.colorNeutralStroke1Hover,
     },
-
-    // Pressed/active state
     "&:active": {
       backgroundColor: tokens.colorNeutralStroke1Pressed,
     },
-
-    // Selected/focused state
     "&:focus-visible": {
       backgroundColor: tokens.colorNeutralStroke1Selected,
     },
-
-    // Transition for smooth state changes
     transition: "all 0.1s ease-in-out",
   },
   processList: {
@@ -140,7 +133,6 @@ export default function Configuration() {
   const styles = useStyles();
   const { dispatchToast } = useToastController();
   const { config, updateConfig } = useConfig();
-
   const [cfg, setCfg] = useState(config);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newProcess, setNewProcess] = useState("");
@@ -150,10 +142,12 @@ export default function Configuration() {
     lastError?: string;
   }>({ connected: false });
 
+  // Update the local state when the config changes
   useEffect(() => {
     setCfg(config);
   }, [config]);
 
+  // Function to add a process or service to the list
   const addProcess = (field: "process_check" | "service_check", value: string) => {
     if (!value.trim()) return;
 
@@ -168,6 +162,7 @@ export default function Configuration() {
     });
   };
 
+  // Function to remove a process or service from the list
   const removeProcess = (field: "process_check" | "service_check", index: number) => {
     setCfg((prev) => ({
       ...prev,
@@ -185,10 +180,12 @@ export default function Configuration() {
       }
     };
 
+    // Subscribe to the MQTT status event
     window.api.onStatus(handleMqttStatus);
 
     return () => {
-      // Properly unregister the event listener
+
+      // Cleanup the event listener when the component unmounts
       window.api.offStatus(handleMqttStatus);
     };
   }, []);

@@ -28,10 +28,10 @@ const createBrowserWindow = (): BrowserWindow => {
     icon: join(__dirname, "..", "build", iconName),
     backgroundColor: nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5",
   };
-
   return new BrowserWindow(windowOptions);
 };
 
+// Load the HTML file or URL
 const loadFileOrUrl = (browserWindow: BrowserWindow) => {
   if (process.env.VITE_DEV_SERVER_URL) {
     browserWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
@@ -40,11 +40,13 @@ const loadFileOrUrl = (browserWindow: BrowserWindow) => {
   }
 };
 
+// Register IPC event listeners
 const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
   ipcMain.on("themeShouldUseDarkColors", (event: IpcMainEvent) => {
     event.returnValue = nativeTheme.shouldUseDarkColors;
   });
 
+  // Handle config updates
   ipcMain.handle("check-process", async (_e, processName) => {
     const isRunning = await ProcessMonitor.checkProcess(processName);
 
@@ -54,10 +56,10 @@ const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
       name: processName,
       state: isRunning ? "running" : "not running",
     });
-
     return isRunning;
   });
 
+  // Handle service updates
   ipcMain.handle("check-service", async (_e, serviceName) => {
     const serviceStatus = await ServiceMonitor.checkService(serviceName);
 
@@ -71,39 +73,42 @@ const registerIpcEventListeners = (mainWindow: BrowserWindow) => {
         description: serviceStatus.description,
       },
     });
-
     return serviceStatus;
   });
 
+  // Handle config updates
   ipcMain.handle("getMqttStatus", () => {
     if (!mqttBridge) {
-      return { connected: false, lastError: "MQTT bridge not initialized" };
+      return { connected: false, lastError: "MQTT bridge not initialised" };
     }
     
     // Use a public method to get the status instead of accessing the private client property
     const status = mqttBridge.getConnectionStatus();
-    console.log("MQTT Status requested:", status);
-    
+    //console.log("MQTT Status requested:", status);
     return status;
   });
 
+  // Handle MQTT connection
   ipcMain.handle("request-system-metrics", async () => {
+   
     // Request immediate metrics update
     if (systemMonitor) {
       await systemMonitor.collectAndSendMetrics();
       return;
     }
-    throw new Error("System monitor not initialized");
+    throw new Error("System monitor not initialised");
   });
 };
 
+// Register native theme event listeners
 const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) => {
   nativeTheme.addListener("updated", () => {
+
     // Determine new icon based on current theme
     const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-dark.png" : "app-icon-light.png";
     const iconPath = join(__dirname, "..", "build", iconName);
-    
     for (const browserWindow of allBrowserWindows) {
+
       // Update the icon
       browserWindow.setIcon(iconPath);
       
@@ -118,13 +123,13 @@ const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) =
   const mainWindow = createBrowserWindow();
   loadFileOrUrl(mainWindow);
   
-  // Initialize config manager
+  // Initialise config manager
   const configManager = new ConfigManager();
   
-  // Initialize the MQTT bridge with the config manager (fix the duplicate)
+  // Initialise the MQTT bridge with the config manager (fix the duplicate)
   mqttBridge = new MqttBridge(mainWindow, configManager);
   
-  // Initialize and start the system monitor
+  // Initialise and start the system monitor
   systemMonitor = new SystemMonitor(mainWindow);
   systemMonitor.start();
 

@@ -40,6 +40,7 @@ export default function Dashboard() {
       }
     };
     
+    // Request updates when the component mounts
     requestAllUpdates();
   }, [config]);
   
