@@ -6,6 +6,13 @@ const baseConfig = {
         buildResources: "build",
     },
     files: ["dist-main/main.js", "dist-preload/preload.js", "dist-renderer/**/*"],
+    extraResources: [
+        {
+            from: "build",
+            to: ".",
+            filter: ["app-icon-*.png"]
+        }
+    ],
     extraMetadata: {
         version: process.env.VITE_APP_VERSION,
     },

@@ -1,7 +1,7 @@
 {
     "name": "mqtt-monitor",
     "description": "MQTT Monitor is a desktop application built with Electron, TypeScript, and Fluent UI React. It provides a user-friendly interface for gathering system information and publishing system data to MQTT topics.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": ["Electron", "TypeScript", "Fluent UI React", "React", "Vite", "MQTT", "System Information"],
     "license": "MIT",
     "author": {

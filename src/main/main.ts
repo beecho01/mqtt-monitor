@@ -15,6 +15,16 @@ const createBrowserWindow = (): BrowserWindow => {
   // Determine icon based on theme
   const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-light.png" : "app-icon-dark.png";
 
+  // Determine correct icon path based on environment
+  let iconPath;
+  if (app.isPackaged) {
+    // In production, use path relative to app resources
+    iconPath = join(process.resourcesPath, iconName);
+  } else {
+    // In development, use path relative to project directory
+    iconPath = join(__dirname, "..", "build", iconName);
+  }
+
   // Create base window options
   const windowOptions: Electron.BrowserWindowConstructorOptions = {
     width: 1152,
@@ -25,7 +35,7 @@ const createBrowserWindow = (): BrowserWindow => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: join(__dirname, "..", "build", iconName),
+    icon: iconPath,
     backgroundColor: nativeTheme.shouldUseDarkColors ? "#202020" : "#f5f5f5",
   };
   return new BrowserWindow(windowOptions);
@@ -104,7 +114,17 @@ const registerNativeThemeEventListeners = (allBrowserWindows: BrowserWindow[]) =
   nativeTheme.addListener("updated", () => {
     // Determine new icon based on current theme
     const iconName = nativeTheme.shouldUseDarkColors ? "app-icon-dark.png" : "app-icon-light.png";
-    const iconPath = join(__dirname, "..", "build", iconName);
+
+    // Determine correct icon path based on environment
+    let iconPath;
+    if (app.isPackaged) {
+      // In production, use path relative to app resources
+      iconPath = join(process.resourcesPath, iconName);
+    } else {
+      // In development, use path relative to project directory
+      iconPath = join(__dirname, "..", "build", iconName);
+    }
+
     for (const browserWindow of allBrowserWindows) {
       // Update the icon
       browserWindow.setIcon(iconPath);
